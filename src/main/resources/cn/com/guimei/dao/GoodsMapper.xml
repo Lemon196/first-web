@@ -1,0 +1,95 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.guimei.dao.GoodsMapper">
+    <resultMap id="goodsMap" type="cn.com.guimei.pojo.Goods">
+        <id property="id" column="id"/>
+        <result property="goodsName" column="goodsName"/>
+        <result property="goodsSmalId" column="goodsSmalId"/>
+        <result property="goodsMoney" column="goodsMoney"/>
+        <result property="goodsNumber" column="goodsNumber"/>
+        <result property="goodsImage" column="goodsImage"/>
+        <result property="goodsCarriage" column="goodsCarriage"/>
+        <result property="goodsType" column="goodsType"/>
+        <result property="goodsDiscId" column="goodsDiscId"/>
+    </resultMap>
+    <resultMap id="extGoodsMap" type="cn.com.guimei.pojo.ExtGoods" extends="goodsMap">
+        <association property="smallClass" javaType="cn.com.guimei.pojo.SmallClass">
+            <id property="id" column="id"/>
+            <result property="smallName" column="smallName"/>
+        </association>
+        <association property="discount" javaType="cn.com.guimei.pojo.Discount">
+            <id property="id" column="id"/>
+            <result property="discRate" column="discRate"/>
+        </association>
+        <association property="seller" javaType="cn.com.guimei.pojo.Seller">
+            <id property="id" column="id"/>
+            <result property="sellerName" column="sellerName"/>
+        </association>
+    </resultMap>
+
+    <select id="goodsWherePageList" parameterType="map" resultMap="extGoodsMap">
+        select * from goods g,smallclass s,discount d,seller se
+        where g.goodsSmalId=s.id and g.goodsDiscId=d.id and g.goodsSellerId=se.id
+        <if test="goods.id!=null and goods.id!=0">
+            and g.id= #{goods.id}
+        </if>
+        <if test="goods.goodsName !=null and goods.goodsName !='' ">
+            and goodsName like concat('%',#{goods.goodsName},'%')
+        </if>
+        <if test="goods.goodsSmalId!= null and goods.goodsSmalId != 0">
+            and  goodsSmalId = #{goods.goodsSmalId}
+        </if>
+        <if test="goods.goodsSellerId!= null and goods.goodsSellerId != 0">
+            and  goodsSellerId = #{goods.goodsSellerId}
+        </if>
+        limit #{pageIndex},#{pageSize};
+    </select>
+
+    <select id="totalWhereRecode" resultType="int" parameterType="cn.com.guimei.pojo.Goods">
+        select count(1) from goods where 1=1
+        <if test="id!=null and id!=0">
+            and id = #{id}
+        </if>
+        <if test="goodsName != null and goodsName!=''">
+            and goodsName like concat('%',#{goodsName},'%')
+        </if>
+        <if test="goodsSmalId != null and goodsSmalId!=0">
+            and  goodsSmalId = #{goodsSmalId}
+        </if>
+        <if test="goodsSellerId!= null and goodsSellerId != 0">
+            and  goodsSellerId = #{goodsSellerId}
+        </if>
+    </select>
+
+    <select id="showSmallClass" resultType="cn.com.guimei.pojo.SmallClass">
+        select * from smallclass
+    </select>
+    <select id="showDisCount" resultType="cn.com.guimei.pojo.Discount">
+        select * from discount
+    </select>
+    <select id="showSeller" resultType="cn.com.guimei.pojo.Seller">
+        select * from seller
+    </select>
+
+    <insert id="addGoods" parameterType="cn.com.guimei.pojo.Goods">
+        insert into goods(goodsName, goodsSmalId, goodsMoney, goodsNumber, goodsImage, goodsCarriage, goodsType, goodsDiscId,goodsSellerId)
+        values (#{goodsName},#{goodsSmalId},#{goodsMoney},#{goodsNumber},#{goodsImage},#{goodsCarriage},#{goodsType},#{goodsDiscId},#{goodsSellerId})
+    </insert>
+    <select id="checkGoodsName" resultType="cn.com.guimei.pojo.Goods" parameterType="String">
+        select * from goods where goodsName=#{goodsName}
+    </select>
+
+    <delete id="deleteGoods" parameterType="String">
+        delete from goods where id=#{id}
+    </delete>
+    <select id="queryGoodsById" parameterType="String" resultMap="extGoodsMap">
+        select * from goods g,smallclass s,discount d,seller se
+        where g.goodsSmalId=s.id and g.goodsDiscId=d.id and g.goodsSellerId=se.id and g.id=#{id}
+    </select>
+    <update id="updateGoods" parameterType="cn.com.guimei.pojo.Goods">
+        update goods set goodsName=#{goodsName},goodsSmalId=#{goodsSmalId},
+        goodsMoney=#{goodsMoney},goodsNumber=#{goodsNumber},goodsImage=#{goodsImage},goodsCarriage=#{goodsCarriage},
+        goodsType=#{goodsType},goodsDiscId=#{goodsDiscId},goodsSellerId=#{goodsSellerId} where id=#{id}
+    </update>
+</mapper>

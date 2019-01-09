@@ -1,0 +1,68 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.guimei.dao.CustomerMapper">
+
+    <select id="customerList" resultType="cn.com.guimei.pojo.Customer">
+        select * from customer
+    </select>
+
+    <!--终极版分页查询与模糊查询-->
+    <select id="customerWherePageList" parameterType="map" resultType="cn.com.guimei.pojo.Customer">
+        select * from customer where 1=1
+        <if test="customer.id!=0 and  null != customer.id">
+            and id=#{customer.id}
+        </if>
+        <if test="customer.cusName!='' and null != customer.cusName">
+            and cusName like concat('%',#{customer.cusName},'%')
+        </if>
+        <if test="customer.cusSex!='' and null != customer.cusSex">
+            and cusSex=#{customer.cusSex}
+        </if>
+        limit #{pageIndex},#{pageSize};
+    </select>
+
+    <!--page类查询-->
+    <select id="queryAll" parameterType="cn.com.guimei.pojo.ExtPage"  resultType="cn.com.guimei.pojo.Customer">
+        select * from customer where 1=1
+        <if test="customer.id!=0 and  null != customer.id">
+            and id=#{customer.id}
+        </if>
+        <if test="customer.cusName!='' and null != customer.cusName">
+            and cusName like concat('%',#{customer.cusName},'%')
+        </if>
+        <if test="customer.cusSex!='' and null !=customer.cusSex">
+            and cusSex=#{customer.cusSex}
+        </if>
+        limit #{page.pageIndex},#{page.pageSize};
+    </select>
+
+    <!--条件查询所有条数-->
+    <select id="totalWhereCount" parameterType="cn.com.guimei.pojo.Customer" resultType="int">
+        select count(1) from customer where 1=1
+        <if test="id!=0 and id!=null">
+            and id=#{id}
+        </if>
+        <if test="cusName!='' and cusName!=null">
+            and cusName like concat('%',#{cusName},'%')
+        </if>
+        <if test="cusSex!='' and cusSex!=null">
+            and cusSex=#{cusSex}
+        </if>
+    </select>
+
+
+
+    <!--删除顾客-->
+    <delete id="deleteCus" parameterType="String">
+        delete from customer where id=#{id}
+    </delete>
+    <!--id查询顾客-->
+    <select id="queryCusById" parameterType="String" resultType="cn.com.guimei.pojo.Customer">
+        select * from customer where id=#{id}
+    </select>
+    <!--id修改顾客信息-->
+    <update id="updateCus" parameterType="cn.com.guimei.pojo.Customer" >
+        update customer set cusName=#{cusName},cusLoginName=#{cusLoginName},cusPassword=#{cusPassword} where id=#{id}
+    </update>
+</mapper>
