@@ -24,7 +24,7 @@
 </script>
 <body>
     <h3 id="error">${error}</h3>
-   <form action="/goods/updateGoods" method="post" >
+   <form action="/goods/updateGoods" method="post" enctype="multipart/form-data">
        <label>商品编号</label>
        <input type="text" name="GId" readonly value="${Goods.id}"/><br>
        <label>商品名称</label>
@@ -38,7 +38,9 @@
        <label>商品数量:</label>
        <input type="text" name="goodsNumber" required value="${Goods.goodsNumber}"/><br>
        <label>商品图片:</label>
-       <input type="text" name="goodsImage" required value="${Goods.goodsImage}"/><br>
+       <img src="static/back/Image/${Goods.goodsImage}"/><br>
+       <label>修改商品图片:</label>
+       <input type="file" name="goodsImages"value="${Goods.goodsImage}"/><br>
        <label>商品运费:</label>
        <input type="text" name="goodsCarriage" required value="${Goods.goodsCarriage}"/><br>
        <label>商品类型(新品或二手):</label>
@@ -51,7 +53,7 @@
        </select><br/>
        <label>商品所属商家:</label>
        <select name="SeId">
-           <option value="${Goods.goodsSellerId}" selected>${Goods.Seller.sellerName}</option>
+           <option value="${Goods.goodsSellerId}" selected="selected">${Goods.seller.sellerName}</option>
        </select><br/>
        <input type="submit" id="sub" disabled value="修改"/><br>
    </form>

@@ -3,9 +3,13 @@ package cn.com.guimei.service.impl;
 import cn.com.guimei.dao.GoodsMapper;
 import cn.com.guimei.pojo.*;
 import cn.com.guimei.service.GoodsService;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -69,8 +73,51 @@ public class GoodsServiceImpl implements GoodsService {
         return goodsMapper.showSeller();
     }
 
-    public int addGoods(Goods goods) {
-        return goodsMapper.addGoods(goods);
+    public int addGoods(Goods goods, MultipartFile goodsImages, String filePath) {
+        if (!goodsImages.isEmpty()){
+            if (goodsImages.getSize()<5000000){
+                //获取文件名（写入数据库）
+                String fileName= goodsImages.getOriginalFilename();
+                //获取文件扩展名（判断文件格式）
+                String prefix= FilenameUtils.getExtension(fileName);
+                if (prefix.equalsIgnoreCase("jpg")
+                        ||prefix.equalsIgnoreCase("png")
+                        ||prefix.equalsIgnoreCase("jpeg")
+                        ||prefix.equalsIgnoreCase("pneg")){
+                    //判断文件路径
+                    File file=new File(filePath);
+                    if (file.exists()){
+                        try {
+                            //执行文件上传
+                            goodsImages.transferTo(new File(file,"/"+fileName));
+                            //写入数据库
+                            goods.setGoodsImage(fileName);
+                            int i=goodsMapper.addGoods(goods);
+                            if (i>0){
+                                //写入数据库成功
+                                return 0;
+                            }else {
+                                //写入数据库失败
+                                return 5;
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }else {
+                        //文件路径不存在
+                        return 4;
+                    }
+                }else {
+                    //文件格式不支持
+                    return 3;
+                }
+            }else {
+                //文件过大
+                return 2;
+            }
+        }
+        //文件为空
+        return 1;
     }
 
     public boolean checkGoodsName(String goodsName) {

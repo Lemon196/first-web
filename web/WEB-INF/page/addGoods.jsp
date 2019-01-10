@@ -36,7 +36,7 @@
         <label>商品数量:</label>
        <input type="text" name="goodsNumber" required value=""/><br>
        <label>商品图片:</label>
-       <input type="file" name="goodsImg" required value=""/><br>
+       <input type="file" name="goodsImages" required value=""/><br>
        <label>商品运费:</label>
        <input type="text" name="goodsCarriage" required value=""/><br>
        <label>商品类型(新品或二手):</label>

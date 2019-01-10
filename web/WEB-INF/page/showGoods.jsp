@@ -70,9 +70,9 @@
                         <td>${gs.goodsMoney}</td>
                         <td>${gs.goodsNumber}</td>
                         <td><img class="layui-nav-img" width="36px" src="static/back/Image/${gs.goodsImage}"></td>
-                        <td>${gs.goodsCarriage}</td>
-                        <td>${gs.goodsType}</td>
-                        <td>${gs.discount.discRate}</td>
+                        <td>${gs.goodsCarriage==0?"包邮":gs.goodsCarriage}</td>
+                        <td>${gs.goodsType==0?"新品":"二手"}</td>
+                        <td>${gs.discount.discRate==1?"不打":gs.discount.discRate*10}折</td>
                         <td>${gs.seller.sellerName}</td>
                         <td><a class="layui-btn layui-btn-sm" onclick="del(${gs.id})">删除</a></td>
                         <td><a class="layui-btn layui-btn-sm" href="/goods/queryGoodsById?GId=${gs.id}">修改</a></td>

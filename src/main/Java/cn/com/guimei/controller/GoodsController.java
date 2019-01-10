@@ -25,7 +25,9 @@ public class GoodsController {
     @RequestMapping("/unionListGoods")
     public String doGoodsUnionPageList(Goods goods, String pageNumber, HttpServletRequest request){
         Map<String,Object> map  = goodsService.goodsUnionPageList(pageNumber, goods);
-        map.put("url","/goods/unionListGoods?id="+goods.getId()+"&goodsName="+goods.getGoodsName()+"&goodsSmalId="+goods.getGoodsSmalId()+"&goodsSellerId="+goods.getGoodsSellerId()+"&pageNumber=");
+        map.put("url","/goods/unionListGoods?id="+goods.getId() +
+                "&goodsName="+goods.getGoodsName()+"&goodsSmalId="+goods.getGoodsSmalId()+
+                "&goodsSellerId="+goods.getGoodsSellerId()+"&pageNumber=");
         request.setAttribute("Map",map);
         return "showGoods";
     }
@@ -48,35 +50,31 @@ public class GoodsController {
         return JSONArray.toJSONString(sellers);
     }
     @RequestMapping(value = "/addGoods",method = RequestMethod.POST)
-    public String addGoods(Goods goods,String goodsName1,String goodsSmalId1,String goodsImg, HttpServletRequest request,
-    @RequestParam(value = "goodsImage",required = false) MultipartFile multipartFile){
+    public String addGoods(Goods goods,String goodsName1,String goodsSmalId1, HttpServletRequest request,MultipartFile goodsImages){
+        //获取上传路径
+        String filePath=request.getRealPath("/static/images/goodsImages");
         goods.setGoodsName(goodsName1);
         goods.setGoodsSmalId(Long.parseLong(goodsSmalId1));
-        /*@RequestParam(value = "goodsImage",required = false)
-        MultipartFile multipartFile*/
-        if (multipartFile.isEmpty()){
-            if (multipartFile.getSize()<5000000){
-               String fileName= multipartFile.getOriginalFilename();
-               String prefix= FilenameUtils.getExtension(fileName);
-               if (prefix.equalsIgnoreCase("jpg")
-               ||prefix.equalsIgnoreCase("png")
-               ||prefix.equalsIgnoreCase("jpeg")
-               ||prefix.equalsIgnoreCase("pneg")){
-                   goods.setGoodsImage(goodsImg);
-               }else {
-                   request.setAttribute("error","上传失败，图片格式不正确！");
-                   return "addGoods";
-               }
-            }
-        }
-        int i=goodsService.addGoods(goods);
-        if (i>0){
+        int i=goodsService.addGoods(goods,goodsImages,filePath);
+        if (i==0){
             request.setAttribute("result","增加成功！");
             return "forward:/goods/unionListGoods";
+        }else if (i==1){
+            request.setAttribute("error","文件为空！");
+            return "forward:/goods/unionListGoods";
+        }else if (i==2){
+            request.setAttribute("error","文件过大！");
+            return "forward:/goods/unionListGoods";
+        }else if (i==3){
+            request.setAttribute("error","文件格式不支持！");
+            return "forward:/goods/unionListGoods";
+        }else if (i==4){
+            request.setAttribute("error","文件路径不存在！");
+            return "forward:/goods/unionListGoods";
+        }else if (i==5){
+            request.setAttribute("error","写入数据库失败！");
         }
-        request.setAttribute("error","增加失败！");
         return "forward:/goods/unionListGoods";
-
     }
     @RequestMapping(value = "/queryGoodsName",produces = "text/json;charset=UTF-8")
     @ResponseBody
@@ -109,11 +107,12 @@ public class GoodsController {
         return "forward:/goods/unionListGoods";
     }
     @RequestMapping("/updateGoods")
-    public String updateGoods(Goods goods,String GId,String GName,String GSmallId,String SeId,HttpServletRequest request){
+    public String updateGoods(Goods goods,String GId,String GName,String GSmallId,String SeId,HttpServletRequest request,MultipartFile goodsImages){
         goods.setId(Long.parseLong(GId));
         goods.setGoodsName(GName);
         goods.setGoodsSmalId(Long.parseLong(GSmallId));
         goods.setGoodsSellerId(Long.parseLong(SeId));
+        goods.setGoodsImage(goodsImages.getOriginalFilename());
         int i=goodsService.updateGoods(goods);
         if (i>0){
             request.setAttribute("result","修改成功！");
